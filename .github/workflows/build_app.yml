@@ -1,7 +1,9 @@
 name: "build_zditor"
 
 on:
-  workflow_dispatch:  # 手动触发工作流
+  push:
+    tags:
+      - 'v*'  # 只会在以 v 开头的标签推送时触发
 jobs:
   publish-tauri:
     permissions:
