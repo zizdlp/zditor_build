@@ -3,7 +3,7 @@ name: "build_zditor"
 on:
   push:
     branches:
-      - main
+      - release
 
 jobs:
   publish-tauri:
@@ -13,8 +13,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: 'windows-latest'
-            args: ''
+          - platform: "macos-latest" # for Arm based macs (M1 and above).
+            args: "--target aarch64-apple-darwin"
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -43,23 +43,34 @@ jobs:
 
       - name: install frontend dependencies
         run: npm install # change this to npm, pnpm or bun depending on which one you use.
-
-      - name: Build with Tauri
-        uses: tauri-apps/tauri-action@v0
+      - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}  # 传递私钥
         with:
-          releaseBody: "See the assets to download this version and install."
+          tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
+          releaseName: 'App v__VERSION__'
+          releaseBody: 'See the assets to download this version and install.'
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: tauri-build-${{ matrix.platform }}
-          path: |
-            ${{ matrix.platform == 'macos-latest' && 'src-tauri/target/aarch64-apple-darwin/release/bundle/dmg' || '' }}
-            ${{ matrix.platform == 'macos-latest' && 'src-tauri/target/x86_64-apple-darwin/release/bundle/dmg' || '' }}
-            ${{ matrix.platform != 'macos-latest' && 'src-tauri/target/release/bundle' || '' }}
+      # - name: Build with Tauri
+      #   uses: tauri-apps/tauri-action@v0
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}  # 传递私钥
+      #   with:
+      #     releaseBody: "See the assets to download this version and install."
+      #     releaseDraft: true
+      #     prerelease: false
+      #     args: ${{ matrix.args }}
+
+      # - name: Upload artifacts
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: tauri-build-${{ matrix.platform }}
+      #     path: |
+      #       ${{ matrix.platform == 'macos-latest' && 'src-tauri/target/aarch64-apple-darwin/release/bundle/dmg' || '' }}
+      #       ${{ matrix.platform == 'macos-latest' && 'src-tauri/target/x86_64-apple-darwin/release/bundle/dmg' || '' }}
+      #       ${{ matrix.platform != 'macos-latest' && 'src-tauri/target/release/bundle' || '' }}
