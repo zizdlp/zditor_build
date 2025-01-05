@@ -47,6 +47,13 @@ jobs:
 
       - name: install frontend dependencies
         run: npm install # change this to npm, pnpm or bun depending on which one you use.
+
+      # 跳过 ubuntu 平台的 AppImage 构建
+      - name: Skip AppImage build for Ubuntu
+        if: matrix.platform == 'ubuntu-22.04'
+        run: echo "Skipping AppImage build on Ubuntu."
+
+      # 运行 tauri-action，构建其他平台
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
