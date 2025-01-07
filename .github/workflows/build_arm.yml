@@ -6,7 +6,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      # 使用 GitHub token 访问私有仓库
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'zizdlp/zditor'  # 替换为私有仓库的实际路径
+          token: ${{ secrets.DEPLOY_TOKEN }}  # 使用 GitHub 提供的 GITHUB_TOKEN 进行身份验证
+
       - uses: pguyot/arm-runner-action@v2.5.2
         with:
           base_image: https://dietpi.com/downloads/images/DietPi_RPi-ARMv8-Bullseye.img.xz
